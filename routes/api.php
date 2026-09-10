@@ -35,7 +35,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 // ── Autenticación pública ─────────────────────────────────────────────────────
-Route::post('/login', [AuthController::class, 'login']);
+// FASE SEGURIDAD: throttle:login limita a 5 intentos/minuto por DNI + IP (429).
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 // ── Rutas protegidas por Sanctum ──────────────────────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
