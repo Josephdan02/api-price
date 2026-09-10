@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\FiscalizacionController;
 use App\Http\Controllers\FiscalizacionIncumplimientoController;
+use App\Http\Controllers\HechoVerificadoController;
 use App\Http\Controllers\PrecioController;
 use App\Http\Controllers\VerificacionController;
 use Illuminate\Support\Facades\Route;
@@ -117,5 +118,24 @@ Route::middleware('auth:sanctum')->group(function () {
     // Eliminación: solo ADMIN
     Route::middleware('role:ADMIN')->group(function () {
         Route::delete('/incumplimientos/{incumplimiento}', [FiscalizacionIncumplimientoController::class, 'destroy']);
+    });
+
+    // ── Hechos Verificados ───────────────────────────────────────────────────
+
+    // Lectura: todos los roles autenticados
+    Route::middleware('role:ADMIN,FISCALIZADOR,CONSULTA')->group(function () {
+        Route::get('/hechos-verificados',           [HechoVerificadoController::class, 'index']);
+        Route::get('/hechos-verificados/{hecho}', [HechoVerificadoController::class, 'show']);
+    });
+
+    // Escritura: ADMIN y FISCALIZADOR
+    Route::middleware('role:ADMIN,FISCALIZADOR')->group(function () {
+        Route::post('/hechos-verificados',                  [HechoVerificadoController::class, 'store']);
+        Route::put('/hechos-verificados/{hecho}', [HechoVerificadoController::class, 'update']);
+    });
+
+    // Eliminación: solo ADMIN
+    Route::middleware('role:ADMIN')->group(function () {
+        Route::delete('/hechos-verificados/{hecho}', [HechoVerificadoController::class, 'destroy']);
     });
 });
