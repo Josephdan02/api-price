@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActaFiscalizacionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EstablecimientoController;
@@ -68,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:ADMIN,FISCALIZADOR,CONSULTA')->group(function () {
         Route::get('/fiscalizaciones',        [FiscalizacionController::class, 'index']);
         Route::get('/fiscalizaciones/{fiscalizacion}', [FiscalizacionController::class, 'show']);
+        Route::get('/fiscalizaciones/{fiscalizacion}/acta/pdf', [ActaFiscalizacionController::class, 'pdf']);
     });
 
     // Escritura: ADMIN y FISCALIZADOR
