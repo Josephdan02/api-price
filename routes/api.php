@@ -3,8 +3,10 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\FiscalizacionController;
+use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\FiscalizacionIncumplimientoController;
 use App\Http\Controllers\HechoVerificadoController;
+use App\Http\Controllers\ObservacionController;
 use App\Http\Controllers\PrecioController;
 use App\Http\Controllers\VerificacionController;
 use Illuminate\Support\Facades\Route;
@@ -137,5 +139,43 @@ Route::middleware('auth:sanctum')->group(function () {
     // Eliminación: solo ADMIN
     Route::middleware('role:ADMIN')->group(function () {
         Route::delete('/hechos-verificados/{hecho}', [HechoVerificadoController::class, 'destroy']);
+    });
+
+    // ── Observaciones ───────────────────────────────────────────────────────
+
+    // Lectura: todos los roles autenticados
+    Route::middleware('role:ADMIN,FISCALIZADOR,CONSULTA')->group(function () {
+        Route::get('/observaciones',            [ObservacionController::class, 'index']);
+        Route::get('/observaciones/{observacion}', [ObservacionController::class, 'show']);
+    });
+
+    // Escritura: ADMIN y FISCALIZADOR
+    Route::middleware('role:ADMIN,FISCALIZADOR')->group(function () {
+        Route::post('/observaciones',                  [ObservacionController::class, 'store']);
+        Route::put('/observaciones/{observacion}', [ObservacionController::class, 'update']);
+    });
+
+    // Eliminación: solo ADMIN
+    Route::middleware('role:ADMIN')->group(function () {
+        Route::delete('/observaciones/{observacion}', [ObservacionController::class, 'destroy']);
+    });
+
+    // ── Firmas ────────────────────────────────────────────────────────────
+
+    // Lectura: todos los roles autenticados
+    Route::middleware('role:ADMIN,FISCALIZADOR,CONSULTA')->group(function () {
+        Route::get('/firmas',            [FirmaController::class, 'index']);
+        Route::get('/firmas/{firma}', [FirmaController::class, 'show']);
+    });
+
+    // Escritura: ADMIN y FISCALIZADOR
+    Route::middleware('role:ADMIN,FISCALIZADOR')->group(function () {
+        Route::post('/firmas',                  [FirmaController::class, 'store']);
+        Route::put('/firmas/{firma}', [FirmaController::class, 'update']);
+    });
+
+    // Eliminación: solo ADMIN
+    Route::middleware('role:ADMIN')->group(function () {
+        Route::delete('/firmas/{firma}', [FirmaController::class, 'destroy']);
     });
 });
