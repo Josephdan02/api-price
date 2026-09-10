@@ -440,7 +440,7 @@ class FiscalizacionTest extends TestCase
                              'estado' => 'EN_PROCESO',
                              'user_id' => $this->fiscalizador()->id,
                              'establecimiento_id' => $fisc->establecimiento_id,
-                             'fecha_diligencia' => $fisc->fecha_diligencia,
+                             'fecha_diligencia' => $fisc->fecha_diligencia->format('Y-m-d'),
                              'hora_apertura' => $fisc->hora_apertura,
                          ]);
 

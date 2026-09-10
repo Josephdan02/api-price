@@ -49,6 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Lectura: todos los roles autenticados
     Route::middleware('role:ADMIN,FISCALIZADOR,CONSULTA')->group(function () {
         Route::get('/establecimientos',        [EstablecimientoController::class, 'index']);
+        Route::get('/establecimientos/{establecimiento}/fiscalizaciones', [EstablecimientoController::class, 'fiscalizaciones']);
         Route::get('/establecimientos/{establecimiento}', [EstablecimientoController::class, 'show']);
     });
 
@@ -76,6 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:ADMIN,FISCALIZADOR')->group(function () {
         Route::post('/fiscalizaciones',                  [FiscalizacionController::class, 'store']);
         Route::put('/fiscalizaciones/{fiscalizacion}', [FiscalizacionController::class, 'update']);
+        Route::patch('/fiscalizaciones/{fiscalizacion}', [FiscalizacionController::class, 'patch']);
     });
 
     // ── Precios ───────────────────────────────────────────────────────────────

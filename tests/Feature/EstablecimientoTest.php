@@ -377,4 +377,120 @@ class EstablecimientoTest extends TestCase
 
         $this->assertEquals(15, $response->json('data.per_page'));
     }
+
+    // ── FASE 6.4.6: search por razon_social ────────────────────────────────
+
+    #[Test]
+    public function search_encuentra_por_razon_social(): void
+    {
+        $this->crearEstablecimiento(['razon_social' => 'Grifo Huanuco Search ABC']);
+        $this->crearEstablecimiento(['razon_social' => 'Grifo Lima Otro']);
+
+        $r = $this->actingAs($this->admin(), 'sanctum')->getJson($this->url() . '?search=Huanuco Search');
+        $r->assertStatus(200)->assertJson(['success' => true]);
+        $this->assertEquals(1, $r->json('data.total'));
+        $this->assertStringContainsString('Huanuco', $r->json('data.data.0.razon_social'));
+    }
+
+    #[Test]
+    public function search_encuentra_por_nombre_comercial(): void
+    {
+        $this->crearEstablecimiento(['razon_social' => 'RS Uno', 'nombre_comercial' => 'Comercial Buscado XYZ']);
+        $this->crearEstablecimiento(['razon_social' => 'RS Dos']);
+        $r = $this->actingAs($this->admin(), 'sanctum')->getJson($this->url() . '?search=Buscado XYZ');
+        $r->assertStatus(200);
+        $this->assertEquals(1, $r->json('data.total'));
+    }
+
+    #[Test]
+    public function search_encuentra_por_codigo(): void
+    {
+        $this->crearEstablecimiento(['codigo_osinergmin' => 'COD-SEARCH-77']);
+        $this->crearEstablecimiento(['codigo_osinergmin' => 'COD-OTRO-88']);
+        $r = $this->actingAs($this->admin(), 'sanctum')->getJson($this->url() . '?search=COD-SEARCH-77');
+        $r->assertStatus(200);
+        $this->assertEquals(1, $r->json('data.total'));
+    }
+
+    #[Test]
+    public function search_encuentra_por_ruc(): void
+    {
+        $this->crearEstablecimiento(['ruc_dni' => '20999888777']);
+        $this->crearEstablecimiento(['ruc_dni' => '20111222333']);
+        $r = $this->actingAs($this->admin(), 'sanctum')->getJson($this->url() . '?search=20999888777');
+        $r->assertStatus(200);
+        $this->assertEquals(1, $r->json('data.total'));
+    }
+
+    #[Test]
+    public function search_sin_coincidencias_vacio(): void
+    {
+        $this->crearEstablecimiento(['razon_social' => 'Grifo Existente']);
+        $r = $this->actingAs($this->admin(), 'sanctum')->getJson($this->url() . '?search=ZZZ-SIN-COINCIDENCIA');
+        $r->assertStatus(200);
+        $this->assertEquals(0, $r->json('data.total'));
+        $this->assertCount(0, $r->json('data.data'));
+    }
+
+    #[Test]
+    public function filtro_por_distrito(): void
+    {
+        $this->crearEstablecimiento(['distrito' => 'Huanuco']);
+        $this->crearEstablecimiento(['distrito' => 'Lima']);
+        $r = $this->actingAs($this->admin(), 'sanctum')->getJson($this->url() . '?distrito=Huanuco');
+        $r->assertStatus(200);
+        $this->assertEquals(1, $r->json('data.total'));
+    }
+
+    #[Test]
+    public function filtro_por_departamento(): void
+    {
+        $this->crearEstablecimiento(['departamento' => 'Huanuco']);
+        $this->crearEstablecimiento(['departamento' => 'Lima']);
+        $r = $this->actingAs($this->admin(), 'sanctum')->getJson($this->url() . '?departamento=Huanuco');
+        $r->assertStatus(200);
+        $this->assertEquals(1, $r->json('data.total'));
+    }
+
+    #[Test]
+    public function filtro_por_activo(): void
+    {
+        $this->crearEstablecimiento(['activo' => true]);
+        $this->crearEstablecimiento(['activo' => false]);
+        $r1 = $this->actingAs($this->admin(), 'sanctum')->getJson($this->url() . '?activo=1');
+        $r1->assertStatus(200);
+        $this->assertEquals(1, $r1->json('data.total'));
+        $r0 = $this->actingAs($this->admin(), 'sanctum')->getJson($this->url() . '?activo=0');
+        $r0->assertStatus(200);
+        $this->assertEquals(1, $r0->json('data.total'));
+    }
+
+    #[Test]
+    public function search_mas_filtros_combinados(): void
+    {
+        $this->crearEstablecimiento(['razon_social' => 'Grifo Combo ABC', 'distrito' => 'Huanuco', 'activo' => true]);
+        $this->crearEstablecimiento(['razon_social' => 'Grifo Combo ABC', 'distrito' => 'Lima', 'activo' => true]);
+        $r = $this->actingAs($this->admin(), 'sanctum')
+            ->getJson($this->url() . '?search=Combo ABC&distrito=Huanuco&activo=1');
+        $r->assertStatus(200);
+        $this->assertEquals(1, $r->json('data.total'));
+    }
+
+    #[Test]
+    public function sin_filtros_conserva_listado(): void
+    {
+        $this->crearEstablecimiento();
+        $this->crearEstablecimiento();
+        $r = $this->actingAs($this->admin(), 'sanctum')->getJson($this->url());
+        $r->assertStatus(200);
+        $this->assertEquals(2, $r->json('data.total'));
+    }
+
+    #[Test]
+    public function activo_invalido_no_rompe(): void
+    {
+        $this->crearEstablecimiento();
+        $this->actingAs($this->admin(), 'sanctum')->getJson($this->url() . '?activo=quizas')
+            ->assertStatus(200)->assertJson(['success' => true]);
+    }
 }
