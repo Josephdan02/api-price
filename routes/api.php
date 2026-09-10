@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\FiscalizacionController;
 use App\Http\Controllers\FirmaController;
@@ -177,5 +178,24 @@ Route::middleware('auth:sanctum')->group(function () {
     // Eliminación: solo ADMIN
     Route::middleware('role:ADMIN')->group(function () {
         Route::delete('/firmas/{firma}', [FirmaController::class, 'destroy']);
+    });
+
+    // ── Documentos ────────────────────────────────────────────────────────
+
+    // Lectura: todos los roles autenticados
+    Route::middleware('role:ADMIN,FISCALIZADOR,CONSULTA')->group(function () {
+        Route::get('/documentos',            [DocumentoController::class, 'index']);
+        Route::get('/documentos/{documento}', [DocumentoController::class, 'show']);
+    });
+
+    // Escritura: ADMIN y FISCALIZADOR
+    Route::middleware('role:ADMIN,FISCALIZADOR')->group(function () {
+        Route::post('/documentos',                  [DocumentoController::class, 'store']);
+        Route::put('/documentos/{documento}', [DocumentoController::class, 'update']);
+    });
+
+    // Eliminación: solo ADMIN
+    Route::middleware('role:ADMIN')->group(function () {
+        Route::delete('/documentos/{documento}', [DocumentoController::class, 'destroy']);
     });
 });
