@@ -31,6 +31,7 @@ return new class extends Migration
                   ->constrained('establecimientos')
                   ->cascadeOnDelete();
             $table->foreignId('user_id')
+                  ->nullable()
                   ->constrained('users')
                   ->restrictOnDelete();
             $table->string('numero_expediente', 100)->nullable()->index();

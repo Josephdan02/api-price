@@ -3,6 +3,9 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EstablecimientoController;
 use App\Http\Controllers\FiscalizacionController;
+use App\Http\Controllers\FiscalizacionIncumplimientoController;
+use App\Http\Controllers\PrecioController;
+use App\Http\Controllers\VerificacionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,5 +70,52 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:ADMIN,FISCALIZADOR')->group(function () {
         Route::post('/fiscalizaciones',                  [FiscalizacionController::class, 'store']);
         Route::put('/fiscalizaciones/{fiscalizacion}', [FiscalizacionController::class, 'update']);
+    });
+
+    // ── Precios ───────────────────────────────────────────────────────────────
+
+    // Lectura: todos los roles autenticados
+    Route::middleware('role:ADMIN,FISCALIZADOR,CONSULTA')->group(function () {
+        Route::get('/precios',        [PrecioController::class, 'index']);
+        Route::get('/precios/{precio}', [PrecioController::class, 'show']);
+    });
+
+    // Escritura: ADMIN y FISCALIZADOR
+    Route::middleware('role:ADMIN,FISCALIZADOR')->group(function () {
+        Route::post('/precios',                  [PrecioController::class, 'store']);
+        Route::put('/precios/{precio}', [PrecioController::class, 'update']);
+    });
+
+    // ── Verificaciones ─────────────────────────────────────────────────────────
+
+    // Lectura: todos los roles autenticados
+    Route::middleware('role:ADMIN,FISCALIZADOR,CONSULTA')->group(function () {
+        Route::get('/verificaciones',        [VerificacionController::class, 'index']);
+        Route::get('/verificaciones/{verificacion}', [VerificacionController::class, 'show']);
+    });
+
+    // Escritura: ADMIN y FISCALIZADOR
+    Route::middleware('role:ADMIN,FISCALIZADOR')->group(function () {
+        Route::post('/verificaciones',                  [VerificacionController::class, 'store']);
+        Route::put('/verificaciones/{verificacion}', [VerificacionController::class, 'update']);
+    });
+
+    // ── Incumplimientos ───────────────────────────────────────────────────────
+
+    // Lectura: todos los roles autenticados
+    Route::middleware('role:ADMIN,FISCALIZADOR,CONSULTA')->group(function () {
+        Route::get('/incumplimientos',        [FiscalizacionIncumplimientoController::class, 'index']);
+        Route::get('/incumplimientos/{incumplimiento}', [FiscalizacionIncumplimientoController::class, 'show']);
+    });
+
+    // Escritura: ADMIN y FISCALIZADOR
+    Route::middleware('role:ADMIN,FISCALIZADOR')->group(function () {
+        Route::post('/incumplimientos',                  [FiscalizacionIncumplimientoController::class, 'store']);
+        Route::put('/incumplimientos/{incumplimiento}', [FiscalizacionIncumplimientoController::class, 'update']);
+    });
+
+    // Eliminación: solo ADMIN
+    Route::middleware('role:ADMIN')->group(function () {
+        Route::delete('/incumplimientos/{incumplimiento}', [FiscalizacionIncumplimientoController::class, 'destroy']);
     });
 });

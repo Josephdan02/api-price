@@ -38,7 +38,7 @@ class StoreFiscalizacionRequest extends FormRequest
                     }
                 }
             }],
-            'numero_expediente'      => ['nullable', 'string', 'max:100'],
+            'numero_expediente'      => ['nullable', 'string', 'max:100', 'unique:fiscalizaciones,numero_expediente'],
             'fecha_diligencia'       => ['required', 'date'],
             'hora_apertura'          => ['required', 'date_format:H:i'],
             'hora_cierre'            => ['nullable', 'date_format:H:i', 'after:hora_apertura'],
@@ -76,6 +76,7 @@ class StoreFiscalizacionRequest extends FormRequest
             'establecimiento_id.exists'       => 'El establecimiento seleccionado no existe.',
             'user_id.exists'                  => 'El fiscalizador seleccionado no existe.',
             'numero_expediente.max'           => 'El número de expediente no puede superar los 100 caracteres.',
+            'numero_expediente.unique'        => 'Ya existe una fiscalización con ese número de expediente.',
             'fecha_diligencia.required'       => 'La fecha de diligencia es obligatoria.',
             'fecha_diligencia.date'           => 'La fecha de diligencia debe ser una fecha válida.',
             'hora_apertura.required'          => 'La hora de apertura es obligatoria.',

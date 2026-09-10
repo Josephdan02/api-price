@@ -60,7 +60,9 @@ class UpdateFiscalizacionRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $fiscalizacion = $this->route('fiscalizacion');
-            if (! $fiscalizacion) {
+            
+            // Si fiscalizacion es un string (ID), no existe el modelo
+            if (is_string($fiscalizacion) || ! $fiscalizacion) {
                 return;
             }
 
@@ -72,8 +74,8 @@ class UpdateFiscalizacionRequest extends FormRequest
                 $validator->errors()->add('user_id', 'No se puede finalizar una fiscalización sin fiscalizador responsable.');
             }
 
-            // Validar transiciones de estado lógicas
-            if ($estado) {
+            // Validar transiciones de estado lógicas (solo si se envía un estado diferente)
+            if ($estado && $estado !== $fiscalizacion->estado) {
                 $estadoActual = $fiscalizacion->estado;
                 $transicionesValidas = [
                     Fiscalizacion::ESTADO_BORRADOR => [Fiscalizacion::ESTADO_EN_PROCESO],
