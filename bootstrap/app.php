@@ -17,7 +17,25 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
         ]);
+
+        // Las rutas API no deben intentar redirigir a una ruta web "login".
+        // Si no están autenticadas, deben responder 401 JSON.
+        $middleware->redirectGuestsTo(function ($request) {
+            return $request->is('api/*') ? null : route('login');
+        });
+
+        // Producción: detrás del proxy inverso de la plataforma (Render/etc.)
+        // la IP real del cliente llega en X-Forwarded-For. Sin esto, Laravel
+        // ve la IP del balanceador y el rate limiter de login
+        // (AppServiceProvider: 5/min por DNI+IP) comparte una única cubeta
+        // entre todos los usuarios. '*' = confiar en la IP que llama
+        // directamente (comportamiento estándar en PaaS; middleware global,
+        // aplica a API y web).
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })->create();
+        $exceptions->shouldRenderJsonWhen(function ($request) {
+            return $request->is('api/*') || $request->expectsJson();
+        });
+    })
+    ->create();
